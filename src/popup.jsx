@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { ThemeProvider } from "./components/ui/theme-provider";
-import Main from "./Layout/Main";
+import Main from "./layout/Main";
 import { MemoryRouter } from "react-router-dom";
 import DataProvider from "./components/DataProvider";
 
