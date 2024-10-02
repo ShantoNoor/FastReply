@@ -14,9 +14,12 @@ import formatDate from "@/lib/formatDate";
 import { deleteReply, fetchAndSet } from "@/lib/db";
 import { toast } from "sonner";
 import useData from "@/hooks/useData";
+import { useNavigate } from "react-router-dom";
 
 const Reply = ({ reply }) => {
   const { reload } = useData();
+  const navigate = useNavigate();
+
   return (
     <Card className="text-lg mt-1">
       <CardHeader className="px-4 pt-4 pb-1">
@@ -51,6 +54,9 @@ const Reply = ({ reply }) => {
               className={
                 "ml-1 relative size-7 text-foreground hover:bg-accent [&_svg]:size-4"
               }
+              onClick={() => {
+                navigate(`/update/${reply.$id}`);
+              }}
             >
               <Pencil />
             </Button>

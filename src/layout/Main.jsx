@@ -2,10 +2,11 @@ import { Route, Routes } from "react-router-dom";
 import Sidebar from "@/components/Sidebar.jsx";
 import { lazy, Suspense } from "react";
 import Spinner from "@/components/Spinner";
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/sonner";
 
 const Root = lazy(() => import("@/pages/Root"));
 const Add = lazy(() => import("@/pages/Add"));
+const Update = lazy(() => import("@/pages/Update"));
 
 export default function Main() {
   return (
@@ -18,6 +19,7 @@ export default function Main() {
           <Routes>
             <Route path="/" element={<Root />} />
             <Route path="/add" element={<Add />} />
+            <Route path="/update/:id" element={<Update />} />
           </Routes>
         </Suspense>
       </div>

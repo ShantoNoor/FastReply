@@ -1,15 +1,28 @@
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { addReply, fetchAndSet } from "@/lib/db";
-import { PlusCircle } from "lucide-react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import useData from "@/hooks/useData";
+import { fetchAndSet, updateReply } from "@/lib/db";
+import { ListCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
-const Add = () => {
+const Update = () => {
   const [content, setContent] = useState("");
   const [tags, setTags] = useState("");
   const navigate = useNavigate();
+  const { id } = useParams();
+  const { filteredReplies: replies } = useData();
+
+  useEffect(() => {
+    const reply = replies.find((reply) => reply.$id === id);
+    if (!reply) {
+      navigate("/");
+      return;
+    }
+    setContent(reply.content);
+    setTags(reply.tags.join(", "));
+  }, []);
 
   const handleSubmit = async () => {
     if (content.trim() === "" || tags.trim() === "") {
@@ -28,16 +41,16 @@ const Add = () => {
       }, []),
     };
 
-    toast.promise(addReply(document), {
-      loading: "Adding reply to db ...",
+    toast.promise(updateReply(id, document), {
+      loading: "Updating reply to db ...",
       success: () => {
         setTimeout(async () => {
           await fetchAndSet();
           navigate("/");
         }, 100);
-        return "Reply added successfully";
+        return "Reply updated successfully";
       },
-      error: "Error: unable to add reply",
+      error: "Error: unable to update reply",
       position: "top-center",
     });
   };
@@ -60,11 +73,11 @@ const Add = () => {
         required
       />
       <Button className="w-full" onClick={handleSubmit}>
-        <PlusCircle className="size-4 mr-1" />
-        <span>Add</span>
+        <ListCheck className="size-4 mr-1" />
+        <span>Update</span>
       </Button>
     </div>
   );
 };
 
-export default Add;
+export default Update;

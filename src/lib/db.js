@@ -39,7 +39,20 @@ export async function addReply(document) {
 
 export async function deleteReply(documentId) {
   try {
-    await db.deleteDocument(databaseId, collectionId, documentId);
+    return await db.deleteDocument(databaseId, collectionId, documentId);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export async function updateReply(documentId, updatedDocument) {
+  try {
+    return await db.updateDocument(
+      databaseId,
+      collectionId,
+      documentId,
+      updatedDocument
+    );
   } catch (err) {
     console.error(err);
   }
