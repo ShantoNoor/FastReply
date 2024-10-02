@@ -11,8 +11,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import formatDate from "@/lib/formatDate";
+import { deleteReply, fetchAndSet } from "@/lib/db";
+import { toast } from "sonner";
+import useData from "@/hooks/useData";
 
 const Reply = ({ reply }) => {
+  const { reload } = useData();
   return (
     <Card className="text-lg mt-1">
       <CardHeader className="px-4 pt-4 pb-1">
@@ -56,6 +60,18 @@ const Reply = ({ reply }) => {
               className={
                 "relative size-7 text-foreground hover:bg-accent [&_svg]:size-4"
               }
+              onClick={() => {
+                toast.promise(deleteReply(reply.$id), {
+                  loading: "Deleting reply from db ...",
+                  success: (res) => {
+                    setTimeout(async () => {
+                      await reload(true);
+                    }, 100);
+                    return "Reply deleted successfully";
+                  },
+                  error: "Error: unable to delete reply",
+                });
+              }}
             >
               <Trash />
             </Button>

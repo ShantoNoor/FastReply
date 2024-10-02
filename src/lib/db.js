@@ -26,13 +26,20 @@ export async function fetchAndSet() {
 
 export async function addReply(document) {
   try {
-    const result = await db.createDocument(
+    return await db.createDocument(
       databaseId,
       collectionId,
       ID.unique(),
       document
     );
-    console.log(result);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+export async function deleteReply(documentId) {
+  try {
+    await db.deleteDocument(databaseId, collectionId, documentId);
   } catch (err) {
     console.error(err);
   }

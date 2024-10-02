@@ -30,11 +30,11 @@ const DataProvider = ({ children }) => {
     setLoading(false);
   };
 
-  const reload = async () => {
-    setLoading(true);
+  const reload = async (noLoading = false) => {
+    if (!noLoading) setLoading(true);
     const res = await fetchAndSet();
     setReplies(res ?? []);
-    setLoading(false);
+    if (!noLoading) setLoading(false);
   };
 
   return (
