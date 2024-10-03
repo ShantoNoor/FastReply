@@ -1,4 +1,4 @@
-import { Client, Databases, ID } from "appwrite";
+import { Client, Databases, ID, Query } from "appwrite";
 import browser from "webextension-polyfill";
 
 const projectId = import.meta.env.VITE_APPWRITE_PROJECT_ID;
@@ -11,17 +11,29 @@ client.setEndpoint("https://cloud.appwrite.io/v1").setProject(projectId);
 const db = new Databases(client);
 
 export async function fetchAndSet() {
-  const res = await db.listDocuments(databaseId, collectionId, []);
+  const allReplies = [];
 
-  const replies = res.documents ?? [];
+  for (let i = 0; ; i++) {
+    const res = await db.listDocuments(databaseId, collectionId, [
+      Query.limit(25),
+      Query.offset(25 * i),
+    ]);
+    const replies = res.documents ?? [];
+    allReplies.push(...replies);
+
+    if (replies.length === 25) {
+      continue;
+    }
+    break;
+  }
 
   try {
-    await browser.storage.local.set({ replies });
+    await browser.storage.local.set({ replies: allReplies });
   } catch (err) {
     console.error(err);
   }
 
-  return replies;
+  return allReplies;
 }
 
 export async function addReply(document) {

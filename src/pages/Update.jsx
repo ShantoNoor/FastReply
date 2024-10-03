@@ -33,7 +33,7 @@ const Update = () => {
     }
 
     const document = {
-      content,
+      content: content.trim(),
       tags: tags.split(",").reduce((acc, cur) => {
         const tag = cur.trim();
         if (tag.length > 0) acc.push(tag);

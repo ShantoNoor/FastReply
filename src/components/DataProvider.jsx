@@ -12,11 +12,21 @@ const DataProvider = ({ children }) => {
 
   useEffect(() => {
     setFilteredReplies(
-      replies.filter((reply) =>
-        JSON.stringify(reply).toLowerCase().includes(filter.toLowerCase())
-      )
+      replies.reduce((acc, cur) => {
+        filter
+          .toLowerCase()
+          .split(" ")
+          .forEach((curFilter) => {
+            if (
+              !acc.includes(cur) &&
+              JSON.stringify(cur).toLowerCase().includes(curFilter)
+            ) {
+              acc.push(cur);
+            }
+          });
+        return acc;
+      }, [])
     );
-    console.log("setFilteredReplies");
   }, [replies, setFilteredReplies, filter]);
 
   const getRepliesFromStorage = async () => {
