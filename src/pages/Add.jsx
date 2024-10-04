@@ -33,7 +33,7 @@ const Add = () => {
       success: () => {
         setTimeout(async () => {
           await fetchAndSet();
-          navigate("/");
+          navigate("/replies");
         }, 100);
         return "Reply added successfully";
       },

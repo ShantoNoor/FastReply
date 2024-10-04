@@ -17,7 +17,7 @@ const Update = () => {
   useEffect(() => {
     const reply = replies.find((reply) => reply.$id === id);
     if (!reply) {
-      navigate("/");
+      navigate("/replies");
       return;
     }
     setContent(reply.content);
@@ -46,7 +46,7 @@ const Update = () => {
       success: () => {
         setTimeout(async () => {
           await fetchAndSet();
-          navigate("/");
+          navigate("/replies");
         }, 100);
         return "Reply updated successfully";
       },

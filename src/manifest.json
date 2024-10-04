@@ -12,5 +12,5 @@
     "default_popup": "src/popup.html"
   },
   "permissions": ["storage"],
-  "host_permissions": ["https://cloud.appwrite.io/v1/**/**"]
+  "host_permissions": ["https://cloud.appwrite.io/v1/*/*"]
 }

@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 const Root = lazy(() => import("@/pages/Root"));
 const Add = lazy(() => import("@/pages/Add"));
 const Update = lazy(() => import("@/pages/Update"));
+const Groq = lazy(() => import("@/pages/Groq"));
 
 export default function Main() {
   return (
@@ -17,7 +18,8 @@ export default function Main() {
       <div className="flex-1 px-1 overflow-y-scroll">
         <Suspense fallback={<Spinner />}>
           <Routes>
-            <Route path="/" element={<Root />} />
+            <Route path="/" element={<Groq />} />
+            <Route path="/replies" element={<Root />} />
             <Route path="/add" element={<Add />} />
             <Route path="/update/:id" element={<Update />} />
           </Routes>

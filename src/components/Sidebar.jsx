@@ -1,6 +1,11 @@
 import { ModeToggle } from "./ui/mode-toggle";
 import NavButton from "./NavButton";
-import { ListPlus, ListRestart, TextSearch } from "lucide-react";
+import {
+  BotMessageSquare,
+  ListPlus,
+  ListRestart,
+  TextSearch,
+} from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import useData from "@/hooks/useData";
 
@@ -15,13 +20,13 @@ const Sidebar = () => {
             tooltip="Reload Replies"
             onClick={() => {
               setTimeout(() => reload(), 1);
-              navigate("/");
+              navigate("/replies");
             }}
           >
             <ListRestart />
           </NavButton>
 
-          <Link to="/">
+          <Link to="/replies">
             <NavButton tooltip="All Replies">
               <TextSearch />
             </NavButton>
@@ -30,6 +35,12 @@ const Sidebar = () => {
           <Link to="/add">
             <NavButton tooltip="Add Reply">
               <ListPlus />
+            </NavButton>
+          </Link>
+
+          <Link to="/">
+            <NavButton tooltip="AI Rewriter">
+              <BotMessageSquare />
             </NavButton>
           </Link>
         </div>
