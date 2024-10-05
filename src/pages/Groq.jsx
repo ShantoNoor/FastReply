@@ -17,13 +17,19 @@ import {
 } from "@/components/ui/select";
 import browser from "webextension-polyfill";
 
+const endCmds = [
+  { id: 1, value: "\nrewrite this in bangla. keep it short." },
+  { id: 2, value: "\nrewrite this formally. keep it short." },
+];
+
 const Groq = () => {
-  const [model, setModel] = useState("llama-3.2-90b-text-preview");
+  // const [model, setModel] = useState("llama-3.2-90b-text-preview");
   const [models, setModels] = useState([]);
-  const [answer, setAnswer] = useState("");
-  const [system, setSystem] = useState("");
+  const [answer, setAnswer] = useState([]);
+  const [system, setSystem] = useState([]);
   const [content, setContent] = useState("");
   const [disabled, setDisabled] = useState(false);
+  const [endCmd, setEndCmd] = useState(endCmds[0].value);
 
   useEffect(() => {
     setModels(getJSON());
@@ -33,10 +39,9 @@ const Groq = () => {
   }, []);
 
   const handleSubmit = async () => {
-    setContent((prev) => prev.trim());
-    setSystem((prev) => prev.trim());
+    setAnswer((prev) => []);
 
-    if (content === "") {
+    if (content.trim() === "") {
       toast.error("Content is required!", { position: "top-center" });
       return;
     }
@@ -44,18 +49,34 @@ const Groq = () => {
     browser.storage.local.set({ system });
 
     setDisabled(true);
-    toast.promise(getGroqChatCompletion(content, model, system), {
-      loading: "Generating answer ...",
-      success: (res) => {
-        setAnswer(res.choices[0]?.message?.content || "");
-        setDisabled(false);
-        return "Generated answer successfully";
-      },
-      error: () => {
-        setDisabled(false);
-        return "Error: unable to generate answer";
-      },
-      position: "top-center",
+
+    models.forEach((curModel) => {
+      toast.promise(
+        getGroqChatCompletion(
+          content.trim() + endCmd,
+          curModel.id,
+          system.trim()
+        ),
+        {
+          loading: "Generating answer ...",
+          success: (res) => {
+            setAnswer((prev) => [
+              ...prev,
+              {
+                content: res.choices[0]?.message?.content || "",
+                model: res.model,
+              },
+            ]);
+            setDisabled(false);
+            return "Generated answer successfully";
+          },
+          error: () => {
+            setDisabled(false);
+            return "Error: unable to generate answer";
+          },
+          position: "top-center",
+        }
+      );
     });
   };
 
@@ -65,7 +86,6 @@ const Groq = () => {
         className="mt-1"
         placeholder="System Prompt ..."
         value={system}
-        rows="2"
         onChange={(e) => setSystem(e.target.value)}
         required
       />
@@ -77,8 +97,8 @@ const Groq = () => {
         required
       />
       <div className="flex justify-center items-center gap-2 ">
-        <Select value={model} onValueChange={(v) => setModel(v)}>
-          <SelectTrigger className="w-full">
+        {/* <Select value={model} onValueChange={(v) => setModel(v)}>
+          <SelectTrigger className="w-[250px]">
             <SelectValue placeholder="Select a model" />
           </SelectTrigger>
           <SelectContent>
@@ -86,8 +106,26 @@ const Groq = () => {
               <SelectLabel>Select Model</SelectLabel>
               {models?.map((curModel) => (
                 <SelectItem
+                  key={curModel.id}
                   value={curModel.id}
                 >{`${curModel.id} (${curModel.owned_by})`}</SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select> */}
+        <Select value={endCmd} onValueChange={(v) => setEndCmd(v)}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select Ending" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Select Ending</SelectLabel>
+              <SelectItem value={" "}>{`None`}</SelectItem>
+              {endCmds?.map((curCmd) => (
+                <SelectItem
+                  key={curCmd.id}
+                  value={curCmd.value}
+                >{`${curCmd.value}`}</SelectItem>
               ))}
             </SelectGroup>
           </SelectContent>
@@ -97,19 +135,22 @@ const Groq = () => {
           <span>Generate</span>
         </Button>
       </div>
-      {answer && (
-        <Card className="text-lg mt-1">
-          <CardHeader className="px-4 pt-4 pb-1">
-            <CardTitle className="flex items-center justify-between gap-2">
-              <div className="whitespace-nowrap flex-1">{model}</div>
-              <CopyButton value={answer} />
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-5 pb-4">
-            <p className="whitespace-pre-line">{answer}</p>
-          </CardContent>
-        </Card>
-      )}
+      {answer?.length !== 0 &&
+        answer.map((curAnswer) => (
+          <Card className="text-lg mt-1" key={curAnswer.model}>
+            <CardHeader className="px-4 pt-4 pb-1">
+              <CardTitle className="flex items-center justify-between gap-2">
+                <div className="whitespace-nowrap flex-1">
+                  {curAnswer.model}
+                </div>
+                <CopyButton value={curAnswer.content} />
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-5 pb-4">
+              <p className="whitespace-pre-line">{curAnswer.content}</p>
+            </CardContent>
+          </Card>
+        ))}
     </div>
   );
 };
@@ -152,15 +193,6 @@ function getJSON() {
       "owned_by": "Google",
       "active": true,
       "context_window": 8192,
-      "public_apps": null
-    },
-    {
-      "id": "mixtral-8x7b-32768",
-      "object": "model",
-      "created": 1693721698,
-      "owned_by": "Mistral AI",
-      "active": true,
-      "context_window": 32768,
       "public_apps": null
     }
   ]`);
