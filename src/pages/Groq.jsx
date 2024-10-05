@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import browser from "webextension-polyfill";
+import { Input } from "@/components/ui/input";
 
 const endCmds = [
   { id: 1, value: "\nrewrite this in bangla. keep it short." },
@@ -23,20 +24,26 @@ const endCmds = [
 ];
 
 const Groq = () => {
-  // const [model, setModel] = useState("llama-3.2-90b-text-preview");
+  const [model, setModel] = useState("llama-3.2-90b-text-preview");
   const [models, setModels] = useState([]);
+  const [restModels, setRestModels] = useState([]);
   const [answer, setAnswer] = useState([]);
   const [system, setSystem] = useState([]);
+  const [number, setNumber] = useState(0);
   const [content, setContent] = useState("");
   const [disabled, setDisabled] = useState(false);
   const [endCmd, setEndCmd] = useState(endCmds[0].value);
 
   useEffect(() => {
-    setModels(getJSON());
+    setModels(getJSON())
     browser.storage.local
       .get(["system"])
       .then((res) => setSystem(res.system ?? "You are a helpful assistant"));
   }, []);
+
+  useEffect(() => {
+    setRestModels(getJSON().filter((curModel) => curModel.id !== model));
+  }, [model]);
 
   const handleSubmit = async () => {
     setAnswer((prev) => []);
@@ -50,33 +57,62 @@ const Groq = () => {
 
     setDisabled(true);
 
-    models.forEach((curModel) => {
-      toast.promise(
-        getGroqChatCompletion(
-          content.trim() + endCmd,
-          curModel.id,
-          system.trim()
-        ),
-        {
-          loading: "Generating answer ...",
-          success: (res) => {
-            setAnswer((prev) => [
-              ...prev,
-              {
-                content: res.choices[0]?.message?.content || "",
-                model: res.model,
-              },
-            ]);
-            setDisabled(false);
-            return "Generated answer successfully";
-          },
-          error: () => {
-            setDisabled(false);
-            return "Error: unable to generate answer";
-          },
-          position: "top-center",
-        }
-      );
+    toast.promise(
+      getGroqChatCompletion(
+        content.trim() + endCmd,
+        model,
+        system.trim()
+      ),
+      {
+        loading: "Generating answer ...",
+        success: (res) => {
+          setAnswer((prev) => [
+            ...prev,
+            {
+              content: res.choices[0]?.message?.content || "",
+              model: res.model,
+            },
+          ]);
+          setDisabled(false);
+          return "Generated answer successfully";
+        },
+        error: () => {
+          setDisabled(false);
+          return "Error: unable to generate answer";
+        },
+        position: "top-center",
+      }
+    );
+
+    restModels.slice(0, number).forEach((curModel, i) => {
+      setTimeout(() => {
+        toast.promise(
+          getGroqChatCompletion(
+            content.trim() + endCmd,
+            curModel.id,
+            system.trim()
+          ),
+          {
+            loading: "Generating answer ...",
+            success: (res) => {
+              setAnswer((prev) => [
+                ...prev,
+                {
+                  content: res.choices[0]?.message?.content || "",
+                  model: res.model,
+                },
+              ]);
+              setDisabled(false);
+              return "Generated answer successfully";
+            },
+            error: () => {
+              setDisabled(false);
+              return "Error: unable to generate answer";
+            },
+            position: "top-center",
+          }
+        );
+      }, 500 * i);
     });
   };
 
@@ -97,8 +133,8 @@ const Groq = () => {
         required
       />
       <div className="flex justify-center items-center gap-2 ">
-        {/* <Select value={model} onValueChange={(v) => setModel(v)}>
-          <SelectTrigger className="w-[250px]">
+        <Select value={model} onValueChange={(v) => setModel(v)}>
+          <SelectTrigger className="w-[220px]">
             <SelectValue placeholder="Select a model" />
           </SelectTrigger>
           <SelectContent>
@@ -112,9 +148,18 @@ const Groq = () => {
               ))}
             </SelectGroup>
           </SelectContent>
-        </Select> */}
+        </Select>
+        <Input
+          type="number"
+          placeholder="Number of models to run"
+          value={number}
+          onChange={(e) => setNumber(e.target.value)}
+          min="0"
+          max="3"
+          className="w-[100px]"
+        />
         <Select value={endCmd} onValueChange={(v) => setEndCmd(v)}>
-          <SelectTrigger className="w-full">
+          <SelectTrigger className="w-[220px]">
             <SelectValue placeholder="Select Ending" />
           </SelectTrigger>
           <SelectContent>
@@ -169,21 +214,21 @@ function getJSON() {
       "public_apps": null
     },
     {
-      "id": "llama3-70b-8192",
-      "object": "model",
-      "created": 1693721698,
-      "owned_by": "Meta",
-      "active": true,
-      "context_window": 8192,
-      "public_apps": null
-    },
-    {
       "id": "llama-3.1-70b-versatile",
       "object": "model",
       "created": 1693721698,
       "owned_by": "Meta",
       "active": true,
       "context_window": 131072,
+      "public_apps": null
+    },
+    {
+      "id": "llama3-70b-8192",
+      "object": "model",
+      "created": 1693721698,
+      "owned_by": "Meta",
+      "active": true,
+      "context_window": 8192,
       "public_apps": null
     },
     {
