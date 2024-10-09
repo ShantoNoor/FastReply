@@ -2,6 +2,7 @@ import { ModeToggle } from "./ui/mode-toggle";
 import NavButton from "./NavButton";
 import {
   BotMessageSquare,
+  Brain,
   ListPlus,
   ListRestart,
   TextSearch,
@@ -39,7 +40,13 @@ const Sidebar = () => {
           </Link>
 
           <Link to="/">
-            <NavButton tooltip="AI Rewriter">
+            <NavButton tooltip="Gemini">
+              <Brain />
+            </NavButton>
+          </Link>
+
+          <Link to="/groq">
+            <NavButton tooltip="Groq">
               <BotMessageSquare />
             </NavButton>
           </Link>

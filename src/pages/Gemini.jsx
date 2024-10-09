@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CopyButton } from "@/components/ui/copy-button";
 import { Textarea } from "@/components/ui/textarea";
-import { getGroqChatCompletion, getModels } from "@/lib/groq";
 import { MessageSquareShare } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -17,10 +16,19 @@ import {
 } from "@/components/ui/select";
 import browser from "webextension-polyfill";
 import { endCmds } from "@/lib/data";
+import { getGeminiChatCompletion } from "@/lib/gemini";
 
-const Groq = () => {
-  const [model, setModel] = useState("");
-  const [models, setModels] = useState([]);
+const models = [
+  "gemini-1.5-flash",
+  "gemini-1.5-pro",
+  "gemini-1.0-pro",
+  "gemini-1.5-flash-8b",
+  "gemini-1.5-flash-002",
+  "gemini-1.5-pro-002",
+];
+
+const Gemini = () => {
+  const [model, setModel] = useState(models[0]);
   const [answer, setAnswer] = useState(null);
   const [system, setSystem] = useState("");
   const [content, setContent] = useState("");
@@ -28,23 +36,17 @@ const Groq = () => {
   const [endCmd, setEndCmd] = useState("");
 
   useEffect(() => {
-    getModels().then((allModels) => {
-      setModels(allModels.data);
-      browser.storage.local.get(["groq_model"]).then((res) => {
-        setModel(res.groq_model ?? allModels.data[0].id);
-      });
-    });
-
-    browser.storage.local.get(["system", "endCmd"]).then((res) => {
+    browser.storage.local.get(["system", "gemini_model", "endCmd"]).then((res) => {
       setSystem(res.system ?? "You are a helpful assistant");
       setEndCmd(res.endCmd ?? "");
+      setModel(res.gemini_model ?? models[0]);
     });
   }, []);
 
   const handleSubmit = async () => {
     setAnswer(null);
 
-    browser.storage.local.set({ system, groq_model: model, endCmd });
+    browser.storage.local.set({ system, gemini_model: model, endCmd });
 
     if (content.trim() === "" || model.trim() === "") {
       toast.error("Content and Model is required!", { position: "top-center" });
@@ -54,13 +56,13 @@ const Groq = () => {
     setDisabled(true);
 
     toast.promise(
-      getGroqChatCompletion(content.trim() + endCmd, model, system.trim()),
+      getGeminiChatCompletion(content.trim() + endCmd, model, system.trim()),
       {
         loading: "Generating answer ...",
         success: (res) => {
           setAnswer({
-            content: res.choices[0]?.message?.content || "",
-            model: res.model,
+            content: res.response.text() || "",
+            model: res?.model ?? model,
           });
           setDisabled(false);
           return "Generated answer successfully";
@@ -99,10 +101,9 @@ const Groq = () => {
             <SelectGroup>
               <SelectLabel>Select Model</SelectLabel>
               {models?.map((curModel) => (
-                <SelectItem
-                  key={curModel.id}
-                  value={curModel.id}
-                >{`${curModel.id} (${curModel.owned_by})`}</SelectItem>
+                <SelectItem key={curModel} value={curModel}>
+                  {curModel}
+                </SelectItem>
               ))}
             </SelectGroup>
           </SelectContent>
@@ -129,10 +130,10 @@ const Groq = () => {
         </Button>
       </div>
       {answer && (
-        <Card className="text-lg mt-1" key={answer.model}>
+        <Card className="text-lg mt-1">
           <CardHeader className="px-4 pt-4 pb-1">
             <CardTitle className="flex items-center justify-between gap-2">
-              <div className="whitespace-nowrap flex-1">{answer.model}</div>
+              <div className="whitespace-nowrap flex-1">{answer?.model}</div>
               <CopyButton value={answer.content} />
             </CardTitle>
           </CardHeader>
@@ -145,4 +146,4 @@ const Groq = () => {
   );
 };
 
-export default Groq;
+export default Gemini;

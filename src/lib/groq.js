@@ -6,7 +6,7 @@ const groq = new Groq({
 });
 
 export async function getGroqChatCompletion(content, model, system) {
-  const messages = [];
+  let messages = [];
 
   if (system) {
     messages.push({
