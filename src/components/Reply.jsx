@@ -15,6 +15,17 @@ import { deleteReply, fetchAndSet } from "@/lib/db";
 import { toast } from "sonner";
 import useData from "@/hooks/useData";
 import { useNavigate } from "react-router-dom";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const Reply = ({ reply }) => {
   const { reload } = useData();
@@ -60,27 +71,49 @@ const Reply = ({ reply }) => {
             >
               <Pencil />
             </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              className={
-                "relative size-7 text-foreground hover:bg-accent [&_svg]:size-4"
-              }
-              onClick={() => {
-                toast.promise(deleteReply(reply.$id), {
-                  loading: "Deleting reply from db ...",
-                  success: (res) => {
-                    setTimeout(async () => {
-                      await reload(true);
-                    }, 100);
-                    return "Reply deleted successfully";
-                  },
-                  error: "Error: unable to delete reply",
-                });
-              }}
-            >
-              <Trash />
-            </Button>
+
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className={
+                    "relative size-7 text-foreground hover:bg-accent [&_svg]:size-4"
+                  }
+                >
+                  <Trash />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    it from database.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => {
+                      toast.promise(deleteReply(reply.$id), {
+                        loading: "Deleting reply from db ...",
+                        success: (res) => {
+                          setTimeout(async () => {
+                            await reload(true);
+                          }, 100);
+                          return "Reply deleted successfully";
+                        },
+                        error: "Error: unable to delete reply",
+                      });
+                    }}
+                  >
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
             <CopyButton value={reply.content} />
           </div>
         </CardTitle>
