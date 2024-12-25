@@ -9,8 +9,12 @@
     "128": "icon/128.png"
   },
   "action": {
-    "default_popup": "src/popup.html"
+    "default_popup": "src/popup.html",
+    "default_title": "FastReply"
   },
-  "permissions": ["storage"],
+  "side_panel": {
+    "default_path": "src/sidepanel.html"
+  },
+  "permissions": ["storage", "sidePanel"],
   "host_permissions": ["https://cloud.appwrite.io/v1/*/*"]
 }

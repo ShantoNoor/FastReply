@@ -90,9 +90,9 @@ const Groq = () => {
         onChange={(e) => setContent(e.target.value)}
         required
       />
-      <div className="flex justify-center items-center gap-2 ">
+      <div className="flex flex-col gap-2 ">
         <Select value={model} onValueChange={(v) => setModel(v)}>
-          <SelectTrigger className="w-[250px]">
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Select a model" />
           </SelectTrigger>
           <SelectContent>
@@ -109,7 +109,7 @@ const Groq = () => {
         </Select>
 
         <Select value={endCmd} onValueChange={(v) => setEndCmd(v)}>
-          <SelectTrigger className="w-[250px]">
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Select Ending" />
           </SelectTrigger>
           <SelectContent>

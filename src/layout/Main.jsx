@@ -12,7 +12,7 @@ const Gemini = lazy(() => import("@/pages/Gemini"));
 
 export default function Main() {
   return (
-    <div className="flex w-[680px] h-[500px] py-1">
+    <div className="flex py-1 h-full">
       <div className="basis-[44px] border-r border-r-border">
         <Sidebar />
       </div>

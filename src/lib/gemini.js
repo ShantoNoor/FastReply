@@ -19,6 +19,15 @@ const generationConfig = {
   responseMimeType: "text/plain",
 };
 
+export async function generateStreaming(content, modelName, system) {
+  const model = genAI.getGenerativeModel({
+    model: modelName,
+    systemInstruction: system,
+  });
+
+  return model.generateContentStream(content);
+}
+
 export async function getGeminiChatCompletion(content, modelName, system) {
   console.log(content, modelName, system);
 
