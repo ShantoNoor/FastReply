@@ -8,6 +8,12 @@
     "96": "icon/96.png",
     "128": "icon/128.png"
   },
+  "content_scripts": [
+    {
+      "matches": ["*://*.programming-hero.com/*"],
+      "js": ["src/lib/assignmentHelper.js"]
+    }
+  ],
   "action": {
     "default_popup": "src/popup.html",
     "default_title": "FastReply"
